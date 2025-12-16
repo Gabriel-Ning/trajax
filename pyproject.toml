@@ -40,9 +40,9 @@ dependencies = [
   "optax>=0.2.0",
   "tqdm>=4.0.0",
   "brax>=0.10.0",
-  "torch==2.9.1+cu128",
-  "torchvision==0.24.1+cu128",
-  "torchaudio==2.9.1+cu128",
+  "torch>=2.9.1",
+  "torchvision>=0.24.1",
+  "torchaudio>=2.9.1",
   "ml_collections>=0.1.1",
   "typing-extensions>=4.10.0",
   "cvxpy>=1.7.5",
@@ -72,17 +72,16 @@ path = "trajax/version.py"
 [tool.hatch.build.targets.wheel]
 packages = ["trajax"]
 
-[tool.uv]
-package = true
-index-url = "https://pypi.org/simple"
-index-strategy = "first-index"
-dev-dependencies = [
-  "numpy>=1.26.0",
+[dependency-groups]
+dev = [
   "pytest",
   "pytest-xdist",
   "frozendict",
   "jupyter",
 ]
+
+[tool.uv]
+package = true
 
 [[tool.uv.index]]
 name = "pytorch-cu128"

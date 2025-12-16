@@ -15,19 +15,76 @@ This is a refactored fork of [google/trajax](https://github.com/google/trajax) w
 - **JIT-Friendly**: "Build once, pass parameters" pattern for efficient compilation
 - **Backward Compatible**: Legacy API maintained for existing code
 
-## Installation
+## Installation (uv)
+
+This repo is configured for [uv](https://docs.astral.sh/uv/) with reproducible dependency locking.
+
+### Quick Setup
 
 ```bash
-# Basic installation
-pip install -e .
+# Install uv if needed
+curl -LsSf https://astral.sh/uv/install.sh | sh  # or: pip install uv
 
-# With optional QP solver backends
-pip install -e ".[osqp]"      # OSQP backend
-pip install -e ".[clarabel]"  # Clarabel backend
-pip install -e ".[cvxpy]"     # CVXPY backend
-pip install -e ".[proxqp]"    # ProxQP backend
-pip install -e ".[all]"       # All backends
+# Configure environment (handles large wheel downloads and CUDA torch)
+export UV_CACHE_DIR=.uv-cache
+export UV_HTTP_TIMEOUT=120
+
+# Install base dependencies
+uv sync
+
+# Also install dev dependencies (pytest, jupyter, etc.)
+uv sync --group dev
 ```
+
+### What's Installed
+
+- **JAX 0.6.2** with CUDA 12 support (with jax-cuda12-pjrt and jax[cuda12])
+- **PyTorch 2.9.1+** from PyTorch CUDA 12.8 index
+- **Trajectory Optimization**: iLQR, Constrained iLQR, SQP, CEM solvers
+- **QP Backends**: OSQP, Clarabel, CVXPY, ProxQP
+- **Testing**: pytest, pytest-xdist, frozendict
+
+### Using the Environment
+
+Activate the virtual environment or use `uv run`:
+
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Or prefix commands with uv run
+uv run python -c "import trajax; print(trajax.__version__)"
+```
+
+### Common Workflows
+
+```bash
+# Run the full test suite
+uv run pytest
+
+# Run tests in parallel
+uv run pytest -n auto
+
+# Start Jupyter notebook
+uv run jupyter notebook
+
+# Add a new dependency
+uv add <package>
+uv lock --update
+
+# Update all dependencies
+uv lock --upgrade
+```
+
+### Troubleshooting
+
+If `casadi` or other large wheels fail to download:
+```bash
+# Increase timeout and retry
+UV_HTTP_TIMEOUT=300 uv sync
+```
+
+If you prefer pip, `pip install -e .` also works, but uv provides reproducible, locked dependencies.
 
 ## Quick Start
 

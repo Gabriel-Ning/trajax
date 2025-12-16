@@ -22,6 +22,7 @@ optimization algorithms:
 - Adjoint (costate) equations for gradient computation
 - PSD projection and regularization
 - Numerical integrators for continuous-time dynamics
+- Manifold utilities for circular/periodic state dimensions
 """
 
 # Linearization utilities
@@ -44,6 +45,7 @@ from trajax.utils.rollout import (
     evaluate,
     objective,
     closed_loop_rollout,
+    safe_cubic_opt,
 )
 
 # Adjoint utilities
@@ -73,6 +75,12 @@ from trajax.utils.integrators import (
     heun,
 )
 
+# Manifold utilities
+from trajax.utils.manifold import (
+    _wrap_to_pi,
+    get_s1_wrapper,
+)
+
 __all__ = [
     # Linearization
     'vectorize',
@@ -90,6 +98,7 @@ __all__ = [
     'evaluate',
     'objective',
     'closed_loop_rollout',
+    'safe_cubic_opt',
     # Adjoint
     'adjoint',
     'grad_wrt_controls',
@@ -108,4 +117,7 @@ __all__ = [
     'rk4',
     'midpoint',
     'heun',
+    # Manifold
+    '_wrap_to_pi',
+    'get_s1_wrapper',
 ]

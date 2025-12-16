@@ -2,11 +2,16 @@ version = 1
 revision = 3
 requires-python = ">=3.10"
 resolution-markers = [
-    "python_full_version >= '3.14'",
-    "python_full_version == '3.13.*'",
-    "python_full_version == '3.12.*'",
-    "python_full_version == '3.11.*'",
-    "python_full_version < '3.11'",
+    "(python_full_version >= '3.14' and platform_machine != 'aarch64') or (python_full_version >= '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux') or (python_full_version >= '3.14' and platform_python_implementation != 'CPython') or (python_full_version >= '3.14' and sys_platform != 'linux')",
+    "python_full_version == '3.14.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.13.*' and platform_machine != 'aarch64') or (python_full_version == '3.13.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.13.*' and sys_platform != 'linux')",
+    "python_full_version == '3.13.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64') or (python_full_version == '3.12.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.12.*' and sys_platform != 'linux')",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64') or (python_full_version == '3.11.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.11.*' and sys_platform != 'linux')",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64') or (python_full_version < '3.11' and platform_python_implementation != 'CPython') or (python_full_version < '3.11' and sys_platform != 'linux')",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
 ]
 
 [[package]]
@@ -796,7 +801,8 @@ name = "contourpy"
 version = "1.3.2"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version < '3.11'",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64') or (python_full_version < '3.11' and platform_python_implementation != 'CPython') or (python_full_version < '3.11' and sys_platform != 'linux')",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
 ]
 dependencies = [
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -866,10 +872,14 @@ name = "contourpy"
 version = "1.3.3"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.14'",
-    "python_full_version == '3.13.*'",
-    "python_full_version == '3.12.*'",
-    "python_full_version == '3.11.*'",
+    "(python_full_version >= '3.14' and platform_machine != 'aarch64') or (python_full_version >= '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux') or (python_full_version >= '3.14' and platform_python_implementation != 'CPython') or (python_full_version >= '3.14' and sys_platform != 'linux')",
+    "python_full_version == '3.14.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.13.*' and platform_machine != 'aarch64') or (python_full_version == '3.13.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.13.*' and sys_platform != 'linux')",
+    "python_full_version == '3.13.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64') or (python_full_version == '3.12.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.12.*' and sys_platform != 'linux')",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64') or (python_full_version == '3.11.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.11.*' and sys_platform != 'linux')",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
 ]
 dependencies = [
     { name = "numpy", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
@@ -1193,7 +1203,8 @@ name = "flax"
 version = "0.10.7"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version < '3.11'",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64') or (python_full_version < '3.11' and platform_python_implementation != 'CPython') or (python_full_version < '3.11' and sys_platform != 'linux')",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
 ]
 dependencies = [
     { name = "jax", marker = "python_full_version < '3.11'" },
@@ -1216,10 +1227,14 @@ name = "flax"
 version = "0.11.2"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.14'",
-    "python_full_version == '3.13.*'",
-    "python_full_version == '3.12.*'",
-    "python_full_version == '3.11.*'",
+    "(python_full_version >= '3.14' and platform_machine != 'aarch64') or (python_full_version >= '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux') or (python_full_version >= '3.14' and platform_python_implementation != 'CPython') or (python_full_version >= '3.14' and sys_platform != 'linux')",
+    "python_full_version == '3.14.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.13.*' and platform_machine != 'aarch64') or (python_full_version == '3.13.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.13.*' and sys_platform != 'linux')",
+    "python_full_version == '3.13.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64') or (python_full_version == '3.12.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.12.*' and sys_platform != 'linux')",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64') or (python_full_version == '3.11.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.11.*' and sys_platform != 'linux')",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
 ]
 dependencies = [
     { name = "jax", marker = "python_full_version >= '3.11'" },
@@ -1487,7 +1502,8 @@ name = "ipython"
 version = "8.37.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version < '3.11'",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64') or (python_full_version < '3.11' and platform_python_implementation != 'CPython') or (python_full_version < '3.11' and sys_platform != 'linux')",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
 ]
 dependencies = [
     { name = "colorama", marker = "python_full_version < '3.11' and sys_platform == 'win32'" },
@@ -1512,10 +1528,14 @@ name = "ipython"
 version = "9.8.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.14'",
-    "python_full_version == '3.13.*'",
-    "python_full_version == '3.12.*'",
-    "python_full_version == '3.11.*'",
+    "(python_full_version >= '3.14' and platform_machine != 'aarch64') or (python_full_version >= '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux') or (python_full_version >= '3.14' and platform_python_implementation != 'CPython') or (python_full_version >= '3.14' and sys_platform != 'linux')",
+    "python_full_version == '3.14.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.13.*' and platform_machine != 'aarch64') or (python_full_version == '3.13.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.13.*' and sys_platform != 'linux')",
+    "python_full_version == '3.13.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64') or (python_full_version == '3.12.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.12.*' and sys_platform != 'linux')",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64') or (python_full_version == '3.11.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.11.*' and sys_platform != 'linux')",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
 ]
 dependencies = [
     { name = "colorama", marker = "python_full_version >= '3.11' and sys_platform == 'win32'" },
@@ -1908,7 +1928,7 @@ dependencies = [
     { name = "overrides", marker = "python_full_version < '3.12'" },
     { name = "packaging" },
     { name = "prometheus-client" },
-    { name = "pywinpty", marker = "os_name == 'nt'" },
+    { name = "pywinpty", marker = "(python_full_version >= '3.15' and os_name == 'nt') or (os_name == 'nt' and platform_machine != 'aarch64') or (os_name == 'nt' and platform_python_implementation != 'CPython') or (os_name == 'nt' and sys_platform != 'linux')" },
     { name = "pyzmq" },
     { name = "send2trash" },
     { name = "terminado" },
@@ -1926,7 +1946,7 @@ name = "jupyter-server-terminals"
 version = "0.5.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pywinpty", marker = "os_name == 'nt'" },
+    { name = "pywinpty", marker = "(python_full_version >= '3.15' and os_name == 'nt') or (os_name == 'nt' and platform_machine != 'aarch64') or (os_name == 'nt' and platform_python_implementation != 'CPython') or (os_name == 'nt' and sys_platform != 'linux')" },
     { name = "terminado" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/fc/d5/562469734f476159e99a55426d697cbf8e7eb5efe89fb0e0b4f83a3d3459/jupyter_server_terminals-0.5.3.tar.gz", hash = "sha256:5ae0295167220e9ace0edcfdb212afd2b01ee8d179fe6f23c899590e9b8a5269", size = 31430, upload-time = "2024-03-12T14:37:03.049Z" }
@@ -2718,7 +2738,8 @@ name = "networkx"
 version = "3.3"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version < '3.11'",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64') or (python_full_version < '3.11' and platform_python_implementation != 'CPython') or (python_full_version < '3.11' and sys_platform != 'linux')",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/04/e6/b164f94c869d6b2c605b5128b7b0cfe912795a87fc90e78533920001f3ec/networkx-3.3.tar.gz", hash = "sha256:0c127d8b2f4865f59ae9cb8aafcd60b5c70f3241ebd66f7defad7c4ab90126c9", size = 2126579, upload-time = "2024-04-06T12:59:47.137Z" }
 wheels = [
@@ -2730,10 +2751,14 @@ name = "networkx"
 version = "3.5"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.14'",
-    "python_full_version == '3.13.*'",
-    "python_full_version == '3.12.*'",
-    "python_full_version == '3.11.*'",
+    "(python_full_version >= '3.14' and platform_machine != 'aarch64') or (python_full_version >= '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux') or (python_full_version >= '3.14' and platform_python_implementation != 'CPython') or (python_full_version >= '3.14' and sys_platform != 'linux')",
+    "python_full_version == '3.14.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.13.*' and platform_machine != 'aarch64') or (python_full_version == '3.13.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.13.*' and sys_platform != 'linux')",
+    "python_full_version == '3.13.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64') or (python_full_version == '3.12.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.12.*' and sys_platform != 'linux')",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64') or (python_full_version == '3.11.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.11.*' and sys_platform != 'linux')",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/6c/4f/ccdb8ad3a38e583f214547fd2f7ff1fc160c43a75af88e6aec213404b96a/networkx-3.5.tar.gz", hash = "sha256:d4c6f9cf81f52d69230866796b82afbccdec3db7ae4fbd1b65ea750feed50037", size = 2471065, upload-time = "2025-05-29T11:35:07.804Z" }
 wheels = [
@@ -2773,7 +2798,8 @@ name = "numpy"
 version = "2.2.6"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version < '3.11'",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64') or (python_full_version < '3.11' and platform_python_implementation != 'CPython') or (python_full_version < '3.11' and sys_platform != 'linux')",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/76/21/7d2a95e4bba9dc13d043ee156a356c0a8f0c6309dff6b21b4d71a073b8a8/numpy-2.2.6.tar.gz", hash = "sha256:e29554e2bef54a90aa5cc07da6ce955accb83f21ab5de01a62c8478897b264fd", size = 20276440, upload-time = "2025-05-17T22:38:04.611Z" }
 wheels = [
@@ -2838,10 +2864,14 @@ name = "numpy"
 version = "2.3.3"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.14'",
-    "python_full_version == '3.13.*'",
-    "python_full_version == '3.12.*'",
-    "python_full_version == '3.11.*'",
+    "(python_full_version >= '3.14' and platform_machine != 'aarch64') or (python_full_version >= '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux') or (python_full_version >= '3.14' and platform_python_implementation != 'CPython') or (python_full_version >= '3.14' and sys_platform != 'linux')",
+    "python_full_version == '3.14.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.13.*' and platform_machine != 'aarch64') or (python_full_version == '3.13.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.13.*' and sys_platform != 'linux')",
+    "python_full_version == '3.13.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64') or (python_full_version == '3.12.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.12.*' and sys_platform != 'linux')",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64') or (python_full_version == '3.11.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.11.*' and sys_platform != 'linux')",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d0/19/95b3d357407220ed24c139018d2518fab0a61a948e68286a25f1a4d049ff/numpy-2.3.3.tar.gz", hash = "sha256:ddc7c39727ba62b80dfdbedf400d1c10ddfa8eefbd7ec8dcb118be8b56d31029", size = 20576648, upload-time = "2025-09-09T16:54:12.543Z" }
 wheels = [
@@ -3986,7 +4016,8 @@ name = "scipy"
 version = "1.15.3"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version < '3.11'",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64') or (python_full_version < '3.11' and platform_python_implementation != 'CPython') or (python_full_version < '3.11' and sys_platform != 'linux')",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
 ]
 dependencies = [
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -4045,10 +4076,14 @@ name = "scipy"
 version = "1.16.3"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.14'",
-    "python_full_version == '3.13.*'",
-    "python_full_version == '3.12.*'",
-    "python_full_version == '3.11.*'",
+    "(python_full_version >= '3.14' and platform_machine != 'aarch64') or (python_full_version >= '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux') or (python_full_version >= '3.14' and platform_python_implementation != 'CPython') or (python_full_version >= '3.14' and sys_platform != 'linux')",
+    "python_full_version == '3.14.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.13.*' and platform_machine != 'aarch64') or (python_full_version == '3.13.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.13.*' and sys_platform != 'linux')",
+    "python_full_version == '3.13.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64') or (python_full_version == '3.12.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.12.*' and sys_platform != 'linux')",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64') or (python_full_version == '3.11.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.11.*' and sys_platform != 'linux')",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
 ]
 dependencies = [
     { name = "numpy", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
@@ -4319,7 +4354,8 @@ name = "tensorstore"
 version = "0.1.78"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version < '3.11'",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64') or (python_full_version < '3.11' and platform_python_implementation != 'CPython') or (python_full_version < '3.11' and sys_platform != 'linux')",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
 ]
 dependencies = [
     { name = "ml-dtypes", marker = "python_full_version < '3.11'" },
@@ -4354,10 +4390,14 @@ name = "tensorstore"
 version = "0.1.79"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.14'",
-    "python_full_version == '3.13.*'",
-    "python_full_version == '3.12.*'",
-    "python_full_version == '3.11.*'",
+    "(python_full_version >= '3.14' and platform_machine != 'aarch64') or (python_full_version >= '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux') or (python_full_version >= '3.14' and platform_python_implementation != 'CPython') or (python_full_version >= '3.14' and sys_platform != 'linux')",
+    "python_full_version == '3.14.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.13.*' and platform_machine != 'aarch64') or (python_full_version == '3.13.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.13.*' and sys_platform != 'linux')",
+    "python_full_version == '3.13.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64') or (python_full_version == '3.12.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.12.*' and sys_platform != 'linux')",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64') or (python_full_version == '3.11.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.11.*' and sys_platform != 'linux')",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
 ]
 dependencies = [
     { name = "ml-dtypes", marker = "python_full_version >= '3.11'" },
@@ -4393,7 +4433,7 @@ version = "0.18.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ptyprocess", marker = "os_name != 'nt'" },
-    { name = "pywinpty", marker = "os_name == 'nt'" },
+    { name = "pywinpty", marker = "(python_full_version >= '3.15' and os_name == 'nt') or (os_name == 'nt' and platform_machine != 'aarch64') or (os_name == 'nt' and platform_python_implementation != 'CPython') or (os_name == 'nt' and sys_platform != 'linux')" },
     { name = "tornado" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8a/11/965c6fd8e5cc254f1fe142d547387da17a8ebfd75a3455f637c663fb38a0/terminado-0.18.1.tar.gz", hash = "sha256:de09f2c4b85de4765f7714688fff57d3e75bad1f909b589fde880460c753fd2e", size = 32701, upload-time = "2024-03-12T14:34:39.026Z" }
@@ -4527,10 +4567,41 @@ wheels = [
 
 [[package]]
 name = "torchaudio"
+version = "2.9.1"
+source = { registry = "https://download.pytorch.org/whl/cu128" }
+resolution-markers = [
+    "python_full_version == '3.14.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "python_full_version == '3.13.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+]
+dependencies = [
+    { name = "torch", marker = "python_full_version < '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/cu128/torchaudio-2.9.1-cp310-cp310-manylinux_2_28_aarch64.whl", hash = "sha256:8c960a6f9c67b373c206c0311b6ccadf2e633694c9b301a1e5380745f2e80656" },
+    { url = "https://download.pytorch.org/whl/cu128/torchaudio-2.9.1-cp311-cp311-manylinux_2_28_aarch64.whl", hash = "sha256:ddb720f4abf3dd284a932b61eaf5fbc0f224195380be98551aef710a4fe34e91" },
+    { url = "https://download.pytorch.org/whl/cu128/torchaudio-2.9.1-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:59f70f6aa6a7e77a1fd51756d7d25fec22bead0b50ce7bed4ede75a5fa6b21d1" },
+    { url = "https://download.pytorch.org/whl/cu128/torchaudio-2.9.1-cp313-cp313-manylinux_2_28_aarch64.whl", hash = "sha256:ea6fe3b9525493df0a5eb5eed5c22925065b5830f6999980ed76bb36c4592d34" },
+    { url = "https://download.pytorch.org/whl/cu128/torchaudio-2.9.1-cp313-cp313t-manylinux_2_28_aarch64.whl", hash = "sha256:9d3cfd604a617a245d26a5381ad7d669047ac1c152896227d8a006aad12151f8" },
+    { url = "https://download.pytorch.org/whl/cu128/torchaudio-2.9.1-cp314-cp314-manylinux_2_28_aarch64.whl", hash = "sha256:bb790f968539f6b4115e637dbf3aab71f3f92e41f0c12e6bc7d52324f0051113" },
+    { url = "https://download.pytorch.org/whl/cu128/torchaudio-2.9.1-cp314-cp314t-manylinux_2_28_aarch64.whl", hash = "sha256:7d8da8816dfa25869da206eb4cdddb11603b042ab59326c6466a65b6e64d2684" },
+]
+
+[[package]]
+name = "torchaudio"
 version = "2.9.1+cu128"
 source = { registry = "https://download.pytorch.org/whl/cu128" }
+resolution-markers = [
+    "(python_full_version >= '3.14' and platform_machine != 'aarch64') or (python_full_version >= '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux') or (python_full_version >= '3.14' and platform_python_implementation != 'CPython') or (python_full_version >= '3.14' and sys_platform != 'linux')",
+    "(python_full_version == '3.13.*' and platform_machine != 'aarch64') or (python_full_version == '3.13.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.13.*' and sys_platform != 'linux')",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64') or (python_full_version == '3.12.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.12.*' and sys_platform != 'linux')",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64') or (python_full_version == '3.11.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.11.*' and sys_platform != 'linux')",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64') or (python_full_version < '3.11' and platform_python_implementation != 'CPython') or (python_full_version < '3.11' and sys_platform != 'linux')",
+]
 dependencies = [
-    { name = "torch" },
+    { name = "torch", marker = "python_full_version >= '3.15' or platform_machine != 'aarch64' or platform_python_implementation != 'CPython' or sys_platform != 'linux'" },
 ]
 wheels = [
     { url = "https://download.pytorch.org/whl/cu128/torchaudio-2.9.1%2Bcu128-cp310-cp310-manylinux_2_28_x86_64.whl", hash = "sha256:62b16424af63c0e12bea6efe3889be358b02047a96119982673f07f12b739888" },
@@ -4551,13 +4622,47 @@ wheels = [
 
 [[package]]
 name = "torchvision"
+version = "0.24.1"
+source = { registry = "https://download.pytorch.org/whl/cu128" }
+resolution-markers = [
+    "python_full_version == '3.14.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "python_full_version == '3.13.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'",
+]
+dependencies = [
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'" },
+    { name = "numpy", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' and python_full_version < '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'" },
+    { name = "pillow", marker = "python_full_version < '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'" },
+    { name = "torch", marker = "python_full_version < '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/cu128/torchvision-0.24.1-cp310-cp310-manylinux_2_28_aarch64.whl" },
+    { url = "https://download.pytorch.org/whl/cu128/torchvision-0.24.1-cp311-cp311-manylinux_2_28_aarch64.whl" },
+    { url = "https://download.pytorch.org/whl/cu128/torchvision-0.24.1-cp312-cp312-manylinux_2_28_aarch64.whl" },
+    { url = "https://download.pytorch.org/whl/cu128/torchvision-0.24.1-cp313-cp313-manylinux_2_28_aarch64.whl" },
+    { url = "https://download.pytorch.org/whl/cu128/torchvision-0.24.1-cp313-cp313t-manylinux_2_28_aarch64.whl" },
+    { url = "https://download.pytorch.org/whl/cu128/torchvision-0.24.1-cp314-cp314-manylinux_2_28_aarch64.whl" },
+    { url = "https://download.pytorch.org/whl/cu128/torchvision-0.24.1-cp314-cp314t-manylinux_2_28_aarch64.whl" },
+]
+
+[[package]]
+name = "torchvision"
 version = "0.24.1+cu128"
 source = { registry = "https://download.pytorch.org/whl/cu128" }
+resolution-markers = [
+    "(python_full_version >= '3.14' and platform_machine != 'aarch64') or (python_full_version >= '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux') or (python_full_version >= '3.14' and platform_python_implementation != 'CPython') or (python_full_version >= '3.14' and sys_platform != 'linux')",
+    "(python_full_version == '3.13.*' and platform_machine != 'aarch64') or (python_full_version == '3.13.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.13.*' and sys_platform != 'linux')",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64') or (python_full_version == '3.12.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.12.*' and sys_platform != 'linux')",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64') or (python_full_version == '3.11.*' and platform_python_implementation != 'CPython') or (python_full_version == '3.11.*' and sys_platform != 'linux')",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64') or (python_full_version < '3.11' and platform_python_implementation != 'CPython') or (python_full_version < '3.11' and sys_platform != 'linux')",
+]
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "numpy", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "pillow" },
-    { name = "torch" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.11' and platform_machine != 'aarch64') or (python_full_version < '3.11' and platform_python_implementation != 'CPython') or (python_full_version < '3.11' and sys_platform != 'linux')" },
+    { name = "numpy", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.11' and platform_machine != 'aarch64') or (python_full_version >= '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux') or (python_full_version >= '3.11' and platform_python_implementation != 'CPython') or (python_full_version >= '3.11' and sys_platform != 'linux')" },
+    { name = "pillow", marker = "python_full_version >= '3.15' or platform_machine != 'aarch64' or platform_python_implementation != 'CPython' or sys_platform != 'linux'" },
+    { name = "torch", marker = "python_full_version >= '3.15' or platform_machine != 'aarch64' or platform_python_implementation != 'CPython' or sys_platform != 'linux'" },
 ]
 wheels = [
     { url = "https://download.pytorch.org/whl/cu128/torchvision-0.24.1%2Bcu128-cp310-cp310-manylinux_2_28_x86_64.whl", hash = "sha256:87f6e32d2d98d2779f9fa58aa93cf6af049e3f87681344a2088e2fc7d9dd3e00" },
@@ -4643,8 +4748,10 @@ dependencies = [
     { name = "scipy", version = "1.16.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "seaborn" },
     { name = "torch" },
-    { name = "torchaudio" },
-    { name = "torchvision" },
+    { name = "torchaudio", version = "2.9.1", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "python_full_version < '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'" },
+    { name = "torchaudio", version = "2.9.1+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "python_full_version >= '3.15' or platform_machine != 'aarch64' or platform_python_implementation != 'CPython' or sys_platform != 'linux'" },
+    { name = "torchvision", version = "0.24.1", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "python_full_version < '3.15' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'" },
+    { name = "torchvision", version = "0.24.1+cu128", source = { registry = "https://download.pytorch.org/whl/cu128" }, marker = "python_full_version >= '3.15' or platform_machine != 'aarch64' or platform_python_implementation != 'CPython' or sys_platform != 'linux'" },
     { name = "tqdm" },
     { name = "typing-extensions" },
 ]
@@ -4662,8 +4769,6 @@ test = [
 dev = [
     { name = "frozendict" },
     { name = "jupyter" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "numpy", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "pytest" },
     { name = "pytest-xdist" },
 ]
@@ -4694,9 +4799,9 @@ requires-dist = [
     { name = "pytest-xdist", marker = "extra == 'test'" },
     { name = "scipy", specifier = ">=1.0.0" },
     { name = "seaborn", specifier = ">=0.13.2" },
-    { name = "torch", specifier = "==2.9.1+cu128", index = "https://download.pytorch.org/whl/cu128" },
-    { name = "torchaudio", specifier = "==2.9.1+cu128", index = "https://download.pytorch.org/whl/cu128" },
-    { name = "torchvision", specifier = "==0.24.1+cu128", index = "https://download.pytorch.org/whl/cu128" },
+    { name = "torch", specifier = ">=2.9.1", index = "https://download.pytorch.org/whl/cu128" },
+    { name = "torchaudio", specifier = ">=2.9.1", index = "https://download.pytorch.org/whl/cu128" },
+    { name = "torchvision", specifier = ">=0.24.1", index = "https://download.pytorch.org/whl/cu128" },
     { name = "tqdm", specifier = ">=4.0.0" },
     { name = "typing-extensions", specifier = ">=4.10.0" },
 ]
@@ -4706,7 +4811,6 @@ provides-extras = ["test"]
 dev = [
     { name = "frozendict" },
     { name = "jupyter" },
-    { name = "numpy", specifier = ">=1.26.0" },
     { name = "pytest" },
     { name = "pytest-xdist" },
 ]

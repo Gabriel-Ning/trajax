@@ -27,6 +27,65 @@ from jax import Array, lax, jit
 from trajax.utils.linearize import pad, vectorize
 
 
+@jit
+def safe_cubic_opt(
+    x1: float,
+    x2: float,
+    vg1: Tuple[float, float],
+    vg2: Tuple[float, float],
+) -> float:
+    """Safe cubic optimization for line search.
+
+    Finds the argmin of a cubic interpolant between two points using function
+    values and gradients. This is more efficient than bisection for line search
+    as it requires fewer function evaluations.
+
+    The cubic interpolant is fitted through (x1, v1) and (x2, v2) with gradients
+    g1 and g2. This function returns the minimizer of the cubic, clipped to
+    [x1, x2] for safety.
+
+    Args:
+        x1: First step size point.
+        x2: Second step size point.
+        vg1: Tuple of (value, gradient) at x1, i.e., (f(x1), f'(x1)).
+        vg2: Tuple of (value, gradient) at x2, i.e., (f(x2), f'(x2)).
+
+    Returns:
+        x: Minimizer of cubic interpolant, clipped to [x1, x2].
+
+    References:
+        - Nocedal & Wright, "Numerical Optimization" (2006)
+        - Original implementation in Shooting-SQP (google/trajax)
+
+    Example:
+        >>> x1, x2 = 0.0, 1.0
+        >>> vg1 = (10.0, 2.0)  # value=10, gradient=2 at x1
+        >>> vg2 = (8.0, 0.5)   # value=8, gradient=0.5 at x2
+        >>> x_opt = safe_cubic_opt(x1, x2, vg1, vg2)
+        >>> print(x_opt)  # Optimal step size between x1 and x2
+    """
+    v1, g1 = vg1
+    v2, g2 = vg2
+
+    # Compute cubic interpolant coefficients
+    # Fit cubic c(x) = a*x^3 + b*x^2 + c*x + d through (x1, v1), (x2, v2)
+    # with derivatives matching g1, g2
+    b1 = g1 + g2 - 3.0 * ((v1 - v2) / (x1 - x2))
+    b2 = jnp.sqrt(jnp.maximum(b1 * b1 - g1 * g2, 0.0))
+
+    # Compute critical point of cubic
+    # Formula ensures numerical stability by avoiding division by small numbers
+    denom = g2 - g1 + 2.0 * b2
+    x = jnp.where(
+        jnp.abs(denom) > 1e-14,
+        x2 - (x2 - x1) * ((g2 + b2 - b1) / denom),
+        0.5 * (x1 + x2),  # Fallback to midpoint if denominator is near zero
+    )
+
+    # Clip result to safe interval [x1, x2]
+    return jnp.maximum(x1, jnp.minimum(x, x2))
+
+
 def rollout(
     dynamics: Callable,
     U: Array,

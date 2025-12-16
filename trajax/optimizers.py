@@ -66,9 +66,21 @@ import scipy.optimize as osp_optimize
 from trajax.tvlqr import rollout as tvlqr_rollout
 from trajax.tvlqr import tvlqr
 
-# Convenience routine to pad zeros for vectorization purposes.
-pad = lambda A: np.vstack((A, np.zeros((1,) + A.shape[1:])))
-
+# Import utilities that were previously defined here
+from trajax.utils import (
+    pad,
+    vectorize,
+    linearize,
+    quadratize,
+    rollout,
+    evaluate,
+    objective,
+    adjoint,
+    ddp_rollout,
+    line_search_ddp,
+    project_psd_cone,
+    hamiltonian,
+)
 
 def _pytree_zeros_like(tree):
   return tree_util.tree_map(np.zeros_like, tree)
@@ -86,115 +98,14 @@ def _pytree_add(tree0, tree1):
   return tree_util.tree_map(lambda x, y: x + y, tree0, tree1)
 
 
-def vectorize(fun, argnums=3):
-  """Returns a jitted and vectorized version of the input function.
-
-  See https://jax.readthedocs.io/en/latest/jax.html#jax.vmap
-
-  Args:
-    fun: a numpy function f(*args) to be mapped over.
-    argnums: number of leading arguments of fun to vectorize.
-
-  Returns:
-    Vectorized/Batched function with arguments corresponding to fun, but extra
-    batch dimension in axis 0 for first argnums arguments (x, u, t typically).
-    Remaining arguments are not batched.
-  """
-
-  def vfun(*args):
-    _fun = lambda tup, *margs: fun(*(margs + tup))
-    return vmap(
-        _fun, in_axes=(None,) + (0,) * argnums)(args[argnums:], *args[:argnums])
-
-  return vfun
+# Note: vectorize, linearize, quadratize, rollout, evaluate, objective, adjoint
+# are now imported from trajax.utils to avoid code duplication.
 
 
-def linearize(fun, argnums=3):
-  """Vectorized gradient or jacobian operator.
-
-  Args:
-    fun: numpy scalar or vector function with signature fun(x, u, t, *args).
-    argnums: number of leading arguments of fun to vectorize.
-
-  Returns:
-    A function that evaluates Gradients or Jacobians with respect to states and
-    controls along a trajectory, e.g.,
-
-        dynamics_jacobians = linearize(dynamics)
-        cost_gradients = linearize(cost)
-        A, B = dynamics_jacobians(X, pad(U), timesteps)
-        q, r = cost_gradients(X, pad(U), timesteps)
-
-        where,
-          X is [T+1, n] state trajectory,
-          U is [T, m] control sequence (pad(U) pads a 0 row for convenience),
-          timesteps is typically np.arange(T+1)
-
-          and A, B are Dynamics Jacobians wrt state (x) and control (u) of
-          shape [T+1, n, n] and [T+1, n, m] respectively;
-
-          and q, r are Cost Gradients wrt state (x) and control (u) of
-          shape [T+1, n] and [T+1, m] respectively.
-
-          Note: due to padding of U, last row of A, B, and r may be discarded.
-  """
-  jacobian_x = jacobian(fun)
-  jacobian_u = jacobian(fun, argnums=1)
-
-  def linearizer(*args):
-    return jacobian_x(*args), jacobian_u(*args)
-
-  return vectorize(linearizer, argnums)
-
-
-def quadratize(fun, argnums=3):
-  """Vectorized Hessian operator for a scalar function.
-
-  Args:
-    fun: numpy scalar with signature fun(x, u, t, *args).
-    argnums: number of leading arguments of fun to vectorize.
-
-  Returns:
-    A function that evaluates Hessians with respect to state and controls along
-    a trajectory, e.g.,
-
-      Q, R, M = quadratize(cost)(X, pad(U), timesteps)
-
-     where,
-          X is [T+1, n] state trajectory,
-          U is [T, m] control sequence (pad(U) pads a 0 row for convenience),
-          timesteps is typically np.arange(T+1)
-
-    and,
-          Q is [T+1, n, n] Hessian wrt state: partial^2 fun/ partial^2 x,
-          R is [T+1, m, m] Hessian wrt control: partial^2 fun/ partial^2 u,
-          M is [T+1, n, m] mixed derivatives: partial^2 fun/partial_x partial_u
-  """
-  hessian_x = hessian(fun)
-  hessian_u = hessian(fun, argnums=1)
-  hessian_x_u = jacobian(jax.grad(fun), argnums=1)
-
-  def quadratizer(*args):
-    return hessian_x(*args), hessian_u(*args), hessian_x_u(*args)
-
-  return vectorize(quadratizer, argnums)
-
-
-def rollout(dynamics, U, x0):
-  """Rolls-out x[t+1] = dynamics(x[t], U[t], t), x[0] = x0.
-
-  Args:
-    dynamics: a function f(x, u, t) to rollout.
-    U: (T, m) np array for control sequence.
-    x0: (n, ) np array for initial state.
-
-  Returns:
-     X: (T+1, n) state trajectory.
-  """
-  return _rollout(dynamics, U, x0)
-
-
+# Internal helpers for _ilqr_template and objective computation
+# These support the custom VJP implementations
 def _rollout(dynamics, U, x0, *args):
+  """Internal rollout helper with support for additional dynamics arguments."""
   def dynamics_for_scan(x, ut):
     u, t = ut
     x_next = dynamics(x, u, t, *args)
@@ -204,44 +115,8 @@ def _rollout(dynamics, U, x0, *args):
       (x0, lax.scan(dynamics_for_scan, x0, (U, np.arange(U.shape[0])))[1]))
 
 
-def evaluate(cost, X, U, *args):
-  """Evaluates cost(x, u, t) along a trajectory.
-
-  Args:
-    cost: cost_fn with signature cost(x, u, t, *args)
-    X: (T, n) state trajectory.
-    U: (T, m) control sequence.
-    *args: args for cost_fn
-
-  Returns:
-    objectives: (T, ) array of objectives.
-  """
-  timesteps = np.arange(X.shape[0])
-  return vectorize(cost)(X, U, timesteps, *args)
-
-
-def objective(cost, dynamics, U, x0):
-  """Evaluates total cost for a control sequence.
-
-  Args:
-    cost: cost_fn with signature cost(x, u, t)
-    dynamics: dynamics_fn with signature dynamics(x, u, t)
-    U: (T, m) control sequence.
-    x0: (n, ) initial state.
-
-  Returns:
-    objectives: total objective summed across time.
-  """
-  cost_converted, cost_consts = custom_derivatives.closure_convert(
-      cost, x0, U[0], 0)
-  dynamics_converted, dynamics_consts = custom_derivatives.closure_convert(
-      dynamics, x0, U[0], 0)
-  return _objective(cost_converted, dynamics_converted, U, x0, cost_consts,
-                    dynamics_consts)
-
-
-# no custom_vjp attached
 def _objective_template(cost, dynamics, U, x0, cost_args, dynamics_args):
+  """Helper for objective computation - used by custom VJP."""
   return np.sum(
       evaluate(cost, _rollout(dynamics, U, x0, *dynamics_args), pad(U),
                *cost_args))
@@ -249,52 +124,22 @@ def _objective_template(cost, dynamics, U, x0, cost_args, dynamics_args):
 
 @partial(jax.custom_vjp, nondiff_argnums=(0, 1))
 def _objective(cost, dynamics, U, x0, cost_args, dynamics_args):
+  """Objective with custom VJP for gradient computation."""
   return _objective_template(cost, dynamics, U, x0, cost_args, dynamics_args)
 
 
 def _objective_fwd(cost, dynamics, U, x0, cost_args, dynamics_args):
+  """Forward pass for custom VJP."""
   obj = _objective(cost, dynamics, U, x0, cost_args, dynamics_args)
   return (obj, (U, x0, cost_args, dynamics_args))
 
 
 def _objective_bwd(cost, dynamics, res, g):
+  """Backward pass for custom VJP."""
   return (g * grad_wrt_controls(cost, dynamics, *res),) + (None,) * 3
 
 
 _objective.defvjp(_objective_fwd, _objective_bwd)
-
-
-def adjoint(A, B, q, r):
-  """Solve adjoint equations.
-
-  Args:
-      A: dynamics Jacobians with respect to state.
-      B: dynamics Jacobians with respect to control.
-      q: cost gradients with respect to state.
-      r: cost gradients with respect to control.
-
-  Returns:
-      gradient, adjoints, final adjoint variable.
-
-  Usage:
-    q, r = linearize(cost)(X, pad(U), timesteps)
-    A, B = linearize(dynamics)(X, pad(U), np.arange(T + 1))
-    gradient, adjoints, _ = adjoint(A, B, q, r)
-  """
-
-  n = q.shape[1]
-  T = q.shape[0] - 1
-  m = r.shape[1]
-  P = np.zeros((T, n))
-  g = np.zeros((T, m))
-
-  def body(p, t):  # backward recursion of Adjoint equations.
-    g = r[t] + np.matmul(B[t].T, p)
-    p = np.matmul(A[t].T, p) + q[t]
-    return p, (p, g)
-
-  p, (P, g) = lax.scan(body, q[T], np.arange(T - 1, -1, -1))
-  return np.flipud(g), np.vstack((np.flipud(P[:T - 1]), q[T])), p
 
 
 def grad_wrt_controls(cost, dynamics, U, x0, cost_args, dynamics_args):
@@ -342,97 +187,8 @@ def hvp(cost, dynamics, U, x0, V, cost_args, dynamics_args):
                  (V,))
 
 
-@partial(jit, static_argnums=(0,))
-def ddp_rollout(dynamics, X, U, K, k, alpha, *args):
-  """Rollouts used in Differential Dynamic Programming.
-
-  Args:
-    dynamics: function with signature dynamics(x, u, t, *args).
-    X: [T+1, n] current state trajectory.
-    U: [T, m] current control sequence.
-    K: [T, m, n] state feedback gains.
-    k: [T, m] affine terms in state feedback.
-    alpha: line search parameter.
-    *args: passed to dynamics.
-
-  Returns:
-    Xnew, Unew: updated state trajectory and control sequence, via:
-
-      del_u = alpha * k[t] + np.matmul(K[t], Xnew[t] - X[t])
-      u = U[t] + del_u
-      x = dynamics(Xnew[t], u, t)
-  """
-  n = X.shape[1]
-  T, m = U.shape
-  Xnew = np.zeros((T + 1, n))
-  Unew = np.zeros((T, m))
-  Xnew = Xnew.at[0].set(X[0])
-
-  def body(t, inputs):
-    Xnew, Unew = inputs
-    del_u = alpha * k[t] + np.matmul(K[t], Xnew[t] - X[t])
-    u = U[t] + del_u
-    x = dynamics(Xnew[t], u, t, *args)
-    Unew = Unew.at[t].set(u)
-    Xnew = Xnew.at[t + 1].set(x)
-    return Xnew, Unew
-
-  return lax.fori_loop(0, T, body, (Xnew, Unew))
-
-
-@partial(jit, static_argnums=(0, 1))
-def line_search_ddp(cost,
-                    dynamics,
-                    X,
-                    U,
-                    K,
-                    k,
-                    obj,
-                    cost_args=(),
-                    dynamics_args=(),
-                    alpha_0=1.0,
-                    alpha_min=0.00005):
-  """Performs line search with respect to DDP rollouts."""
-
-  obj = np.where(np.isnan(obj), np.inf, obj)
-  costs = partial(evaluate, cost)
-  total_cost = lambda X, U, *margs: np.sum(costs(X, pad(U), *margs))
-
-  def line_search(inputs):
-    """Line search to find improved control sequence."""
-    _, _, _, alpha = inputs
-    Xnew, Unew = ddp_rollout(dynamics, X, U, K, k, alpha, *dynamics_args)
-    obj_new = total_cost(Xnew, Unew, *cost_args)
-    alpha = 0.5 * alpha
-    obj_new = np.where(np.isnan(obj_new), obj, obj_new)
-
-    # Only return new trajs if leads to a strict cost decrease
-    X_return = np.where(obj_new < obj, Xnew, X)
-    U_return = np.where(obj_new < obj, Unew, U)
-
-    return X_return, U_return, np.minimum(obj_new, obj), alpha
-
-  return lax.while_loop(
-      lambda inputs: np.logical_and(inputs[2] >= obj, inputs[3] > alpha_min),
-      line_search, (X, U, obj, alpha_0))
-
-
-@jit
-def project_psd_cone(Q, delta=0.0):
-  """Projects to the cone of positive semi-definite matrices.
-
-  Args:
-    Q: [n, n] symmetric matrix.
-    delta: minimum eigenvalue of the projection.
-
-  Returns:
-    [n, n] symmetric matrix projection of the input.
-  """
-  S, V = np.linalg.eigh(Q)
-  S = np.maximum(S, delta)
-  Q_plus = np.matmul(V, np.matmul(np.diag(S), V.T))
-  return 0.5 * (Q_plus + Q_plus.T)
-
+# Note: ddp_rollout, line_search_ddp, and project_psd_cone are now imported
+# from trajax.utils to avoid code duplication.
 
 def ilqr(cost,
          dynamics,
@@ -861,14 +617,7 @@ def _ilqr_template(cost, dynamics, x0, U, cost_args, dynamics_args, maxiter,
   return X, U, obj, gradient, adjoints, lqr, it
 
 
-def hamiltonian(cost, dynamics):
-  """Returns function to evaluate associated Hamiltonian."""
-
-  def fun(x, u, t, p, cost_args=(), dynamics_args=()):
-    return cost(x, u, t, *cost_args) + np.dot(p,
-                                              dynamics(x, u, t, *dynamics_args))
-
-  return fun
+# Note: hamiltonian is now imported from trajax.utils to avoid code duplication.
 
 
 def vhp_params(cost):
@@ -1343,9 +1092,11 @@ def constrained_ilqr(cost,
     inequality_constraints_projected = inequality_projection(
         inequality_constraints)
 
-    max_constraint_violation = np.maximum(
-        np.max(np.abs(equality_constraints)),
-        np.max(inequality_constraints_projected))
+    # Safely compute max constraint violation, handling empty arrays
+    # Use initial parameter to handle empty arrays gracefully
+    max_eq = np.max(np.abs(equality_constraints), initial=0.0)
+    max_ineq = np.max(inequality_constraints_projected, initial=0.0)
+    max_constraint_violation = np.maximum(max_eq, max_ineq)
 
     # augmented Lagrangian update
     dual_equality = dual_update_mapped(equality_constraints, dual_equality,
