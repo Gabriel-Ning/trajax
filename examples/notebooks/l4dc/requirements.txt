@@ -1,0 +1,11 @@
+jax
+chex
+flax
+numpy
+scipy
+matplotlib
+optax
+tqdm
+brax
+jupyter
+-e ../..

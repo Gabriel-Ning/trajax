@@ -1,0 +1,95 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "trajax"
+dynamic = ["version"]
+description = "Accelerated, batchable, differentiable trajectory optimization with JAX."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Trajax authors", email = "no-reply@google.com" }]
+keywords = [
+  "optimization",
+  "control",
+  "trajectory optimization",
+  "automatic differentiation",
+  "jax",
+]
+classifiers = [
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+  "absl-py>=0.7.0",
+  "jax==0.6.2",
+  "jaxlib==0.6.2",
+  "jax-cuda12-pjrt==0.6.2",
+  "jax[cuda12]==0.6.2",
+  "chex>=0.1.0",
+  "flax>=0.8.0",
+  "numpy>=1.26.0",
+  "scipy>=1.0.0",
+  "matplotlib>=3.0.0",
+  "optax>=0.2.0",
+  "tqdm>=4.0.0",
+  "brax>=0.10.0",
+  "torch==2.9.1+cu128",
+  "torchvision==0.24.1+cu128",
+  "torchaudio==2.9.1+cu128",
+  "ml_collections>=0.1.1",
+  "typing-extensions>=4.10.0",
+  "cvxpy>=1.7.5",
+  "seaborn>=0.13.2",
+  "google-benchmark>=1.9.4",
+  "pin>=3.8.0",
+  "casadi>=3.7.2",
+  "adam-robotics[all]>=0.5.0",
+  "liecasadi>=0.0.7",
+]
+
+[project.optional-dependencies]
+test = [
+  "numpy>=1.26.0",
+  "pytest",
+  "pytest-xdist",
+  "frozendict",
+]
+
+[project.urls]
+Homepage = "https://github.com/google/trajax"
+Repository = "https://github.com/google/trajax"
+
+[tool.hatch.version]
+path = "trajax/version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["trajax"]
+
+[tool.uv]
+package = true
+index-url = "https://pypi.org/simple"
+index-strategy = "first-index"
+dev-dependencies = [
+  "numpy>=1.26.0",
+  "pytest",
+  "pytest-xdist",
+  "frozendict",
+  "jupyter",
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+torchvision = { index = "pytorch-cu128" }
+torchaudio = { index = "pytorch-cu128" }

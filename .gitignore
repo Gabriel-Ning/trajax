@@ -1,0 +1,43 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Cache and coverage
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pytype/
+.coverage
+htmlcov/
+.nox/
+.tox/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Binary objects
+*.so
+*.pyd
+*.dll
+*.dylib
+*.exe
+*.bin
+*.o
+*.a
+*.lo
+*.la
+
+# OS files
+.DS_Store
+Thumbs.db

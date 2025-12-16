@@ -1,107 +1,214 @@
-# trajax
+# Trajax - Trajectory Optimization in JAX
 
-A Python library for differentiable optimal control on accelerators.
+A modular library for trajectory optimization and optimal control in JAX, featuring multiple solvers, QP backends, and a unified MPC interface.
 
-Jump to: [**installation**](#installation)
-| [**background**](#trajectory-optimization-and-optimal-control)
-| [**API**](#api)
-| [**limitations**](#limitations)
+## Overview
 
-Trajax builds on [JAX](https://github.com/google/jax) and hence code written
-with Trajax supports JAX's transformations. In particular, Trajax's solvers:
+This is a refactored fork of [google/trajax](https://github.com/google/trajax) with enhanced modularity, additional solver backends, and improved interfaces for model predictive control.
 
-1. Are automatically efficiently differentiable, via `jax.grad`.
-2. Scale up to parallel instances via `jax.vmap` and `jax.pmap`.
-3. Can run on CPUs, GPUs, and TPUs without code changes, and support end-to-end compilation with `jax.jit`.
-4. Are made available from Python, written with NumPy.
+### Key Features
 
-In Trajax, differentiation through the solution of a trajectory optimization problem is done more efficiently than by differentiating the solver implementation directly. Specifically, Trajax defines custom differentiation routines for its solvers. It registers these with JAX so that they are picked up whenever using JAX's autodiff features (e.g. `jax.grad`) to differentiate functions that call a Trajax solver.
-
-**This is a research project, not an official Google product.**
-
-Trajax is currently a work in progress, maintained by a few individuals at Google Research. While we are actively using Trajax in our own research projects, expect there to be bugs and rough edges compared to commercially available solvers.
+- **Multiple Optimization Algorithms**: iLQR, Constrained iLQR, SQP, CEM, Random Shooting
+- **Multiple QP Backends**: OSQP, Clarabel, CVXPY, ProxQP, and augmented Lagrangian iLQR
+- **Unified MPC Interface**: Easy-to-use controller with warm starting and periodic relinearization
+- **LQR Solvers**: Time-varying LQR, Riccati equation solvers (DARE/CARE)
+- **JIT-Friendly**: "Build once, pass parameters" pattern for efficient compilation
+- **Backward Compatible**: Legacy API maintained for existing code
 
 ## Installation
 
-To install directly from github using `pip`:
-
 ```bash
-$ pip install git+https://github.com/google/trajax
+# Basic installation
+pip install -e .
+
+# With optional QP solver backends
+pip install -e ".[osqp]"      # OSQP backend
+pip install -e ".[clarabel]"  # Clarabel backend
+pip install -e ".[cvxpy]"     # CVXPY backend
+pip install -e ".[proxqp]"    # ProxQP backend
+pip install -e ".[all]"       # All backends
 ```
 
-Alternatively, to install from source:
+## Quick Start
 
-```bash
-$ python setup.py install
-```
-
-## Trajectory optimization and optimal control
-
-We consider classical optimal control tasks concerning optimizing trajectories of a given discrete time dynamical system by solving the following problem. Given a cost function `c`, dynamics function `f`, and initial state `x0`, the goal is to compute:
+### Basic Trajectory Optimization
 
 ```python
-argmin(lambda X, U: sum(c(X[t], U[t], t) for t in range(T)) + c_final(X[T]))
+import jax.numpy as jnp
+from trajax.core import TrajectoryProblem
+from trajax.solvers import ILQROptimizer
+
+# Define dynamics and cost
+def dynamics(x, u, t, params):
+    return x + u * dt
+
+def cost(x, u, t, params):
+    return jnp.sum(x**2) + jnp.sum(u**2)
+
+# Create problem
+problem = TrajectoryProblem(
+    state_dim=4,
+    control_dim=2,
+    horizon=50,
+    dynamics=dynamics,
+    cost=cost,
+)
+
+# Solve
+optimizer = ILQROptimizer(maxiter=100)
+result = optimizer.solve(problem, x0, U0)
+
+print(f"Objective: {result.obj}")
+print(f"Status: {result.status}")
 ```
 
-subject to the constraint that `X[0] == x0` and that:
+### Model Predictive Control
 
 ```python
-all(X[t + 1] == f(X[t], U[t], t) for t in range(T))
+from trajax.mpc import MPCProblem, MPCConfig, MPCController
+
+# Create MPC problem with reference tracking
+problem = MPCProblem.tracking_problem(
+    dynamics=dynamics,
+    x_ref=reference_trajectory,
+    u_ref=nominal_controls,
+    Q=jnp.diag([10.0, 10.0, 1.0, 1.0]),
+    R=jnp.diag([0.1, 0.1]),
+)
+
+# Configure controller
+config = MPCConfig(
+    horizon=20,
+    dt=0.01,
+    warm_start=True,
+    relinearize_every=5,
+)
+
+# Build controller (JIT compile once)
+controller = MPCController(problem, config)
+controller.build()
+
+# Control loop
+for t in range(num_steps):
+    u, info = controller.step(x_current)
+    x_current = simulate(x_current, u)
+    print(f"Step {t}: objective={info['objective']:.3f}, "
+          f"solve_time={info['solve_time_ms']:.2f}ms")
 ```
 
-There are many resources for more on trajectory optimization, including [_Dynamic Programming and Optimal Control_ by Dimitri Bertsekas](http://athenasc.com/dpbook.html) and [_Underactuated Robotics_ by Russ Tedrake](http://underactuated.mit.edu/trajopt.html).
-
-## API
-
-In describing the API, it will be useful to abbreviate a JAX/NumPy floating point ndarray of shape `(a, b, …)` as a type denoted `F[a, b, …]`. Assume `n` is the state dimension, `d` is the control dimension, and `T` is the time horizon.
-
-### Problem setup convention/signature
-
-Setting up a problem requires writing two functions, cost and dynamics, with type signatures:
+### Using Different Solvers
 
 ```python
-cost(state: F[n], action: F[d], time_step: int) : float
-dynamics(state: F[n], action: F[d], time_step: int) : F[n]
+from trajax.solvers import get_solver
+
+# Create solver by name
+optimizer = get_solver('constrained_ilqr', maxiter=50)
+result = optimizer.solve(problem, x0, U0)
+
+# Or use specific optimizer class
+from trajax.solvers import ConstrainedILQROptimizer
+
+optimizer = ConstrainedILQROptimizer(
+    maxiter=50,
+    maxiter_al=10,
+    constraints_threshold=1e-3,
+)
 ```
 
-Note that even if a dimension `n` or `d` is 1, the corresponding state or action representation is still a rank-1 ndarray (i.e. a vector, of length 1).
+## Package Structure
 
-Because Trajax uses JAX, the `cost` and `dynamics` functions must be written in a functional programming style as required by JAX. See [the JAX readme](https://github.com/google/jax#current-gotchas) for details on writing JAX-friendly functional code. By and large, functions that have no side effects and that use `jax.numpy` in place of `numpy` are likely to work.
+```
+trajax/
+├── core/          # Core abstractions (TrajectoryProblem, Trajectory, types)
+├── solvers/       # Trajectory optimizers (iLQR, CEM, SQP, etc.)
+├── mpc/           # MPC controller interface
+├── lqr/           # LQR solvers (TVLQR, Riccati equations)
+├── qp/            # QP solver backends
+├── utils/         # Utilities (linearize, rollout, adjoint, PSD projection)
+└── legacy/        # Backward-compatible API
+```
 
-### Solvers
+## Modules
 
-If we abbreviate the type of the above two functions as `CostFn` and `DynamicsFn`, then our solvers have the following type signature prefix in common:
+### trajax.core
+Core abstractions for trajectory optimization:
+- `TrajectoryProblem`: Problem specification with dynamics, costs, and constraints
+- `Trajectory`: Solution container with states, controls, and solver info
+- Type definitions and protocols
+
+### trajax.solvers
+Trajectory optimization algorithms:
+- `ILQROptimizer`: Iterative Linear Quadratic Regulator
+- `ConstrainedILQROptimizer`: Constrained iLQR with augmented Lagrangian
+- `CEMOptimizer`: Cross-Entropy Method
+- `RandomShootingOptimizer`: Random shooting baseline
+
+### trajax.mpc
+Model Predictive Control interface:
+- `MPCProblem`: MPC-specific problem formulation with reference tracking
+- `MPCConfig`: Configuration for horizon, timestep, relinearization
+- `MPCController`: Receding horizon controller with warm starting
+
+### trajax.lqr
+Linear Quadratic Regulator solvers:
+- `tvlqr`: Time-varying LQR solver
+- `ctvlqr`: Constrained TVLQR with ADMM
+- `dare_solve`: Discrete-time algebraic Riccati equation
+- `care_scipy`: Continuous-time algebraic Riccati equation
+
+### trajax.qp
+QP solver backends (optional dependencies):
+- `OSQPBackend`: OSQP solver
+- `ClarabelBackend`: Clarabel solver
+- `CVXPYBackend`: CVXPY wrapper
+- `ProxQPBackend`: ProxQP solver
+- `ALiLQRBackend`: Augmented Lagrangian iLQR as QP solver
+
+### trajax.utils
+Utility functions:
+- `linearize`: Linearize dynamics via autodiff
+- `quadratize`: Quadratize cost functions
+- `rollout`: Forward simulation
+- `adjoint`: Adjoint equation solver
+- `project_psd_cone`: PSD projection for numerical stability
+
+## Backward Compatibility
+
+The legacy API is maintained for existing code:
 
 ```python
-solver(cost: CostFn, dynamics: DynamicsFn, initial_state: F[n], initial_actions: F[T, d], *solver_args, **solver_kwargs): SolverOutput
+# Old API still works
+from trajax.legacy import ilqr
+
+X, U, obj, grad, adjoints, lqr_state, iters = ilqr(
+    cost, dynamics, x0, U, maxiter=100
+)
+
+# Or use legacy imports
+import trajax
+result = trajax.optimizers.ilqr(cost, dynamics, x0, U)
 ```
 
-`SolverOutput` is a tuple of `(F[T + 1, n], F[T, d], float, *solver_outputs)`. The first three tuple components represent the optimal state trajectory, optimal control sequence, and the optimal objective value achieved, respectively. The remaining `*solver_outputs` are specific to the particular solver (such as number of iterations, norm of the final gradient, etc.).
+## License
 
-There are currently four solvers provided: `ilqr`, `scipy_minimize`, `cem`, and `random_shooting`. Each extends the signatures above with solver-specific arguments and output values. Details are provided in each solver function's docstring.
+This project maintains the Apache License 2.0 from the original trajax library.
+See LICENSE and NOTICE files for details.
 
-Underlying the `ilqr` implementation is a time-varying LQR routine, which solves a special case of the above problem, where costs are convex quadratic and dynamics are affine. To capture this, both are represented as matrices. This routine is also made available as `tvlqr`.
+## Citation
 
-### Objectives
+If you use this library, please cite the original trajax:
 
-One might want to write a custom solver, or work with an objective function for any other reason. To that end, Trajax offers the optimal control objective in the form of an API function:
-
-```python
-objective(cost: CostFn, dynamics: DynamicsFn, initial_state: F[n], actions: F[T, d]): float
+```bibtex
+@software{trajax2021,
+  author = {Google LLC},
+  title = {Trajax: Trajectory Optimization in JAX},
+  url = {https://github.com/google/trajax},
+  year = {2021},
+}
 ```
 
-Combining this function with JAX's autodiff capabilities offers, for example, a starting point for writing a first-order custom solver. For example:
+## Acknowledgments
 
-```python
-def improve_controls(cost, dynamics, U, x0, eta, num_iters):
-  grad_fn = jax.grad(trajax.objective, argnums=(2,))
-  for i in range(num_iters):
-    U = U - eta * grad_fn(cost, dynamics, U, x0)
-  return U
-```
-
-The solvers provided by Trajax are actually built around this `objective` function. For instance, the `scipy_minimize` solver simply calls `scipy.minimize.minimize` with the gradient and Hessian-vector product functions derived from `objective` using `jax.grad` and `jax.hessian`.
-
-## Limitations
-
-​​Just as Trajax inherits the autodiff, compilation, and parallelism features of JAX, it also inherits its corresponding limitations. Functions such as the cost and dynamics given to a solver must be written using `jax.numpy` in place of standard `numpy`, and must conform to a functional style; see [the JAX readme](https://github.com/google/jax#current-gotchas). Due to the complexity of trajectory optimizer implementations, initial compilation times can be long.
+This is a derivative work based on [google/trajax](https://github.com/google/trajax).
+All core algorithms and many implementations originate from the original project.
+This fork adds modularity, additional backends, and enhanced interfaces.

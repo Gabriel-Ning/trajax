@@ -1,0 +1,19 @@
+Trajax - Trajectory Optimization in JAX
+Copyright 2021-2024 Google LLC
+
+This is a derivative work based on the original trajax library:
+https://github.com/google/trajax
+
+Original Copyright 2021 Google LLC
+
+Major modifications in this fork:
+- Refactored into modular architecture with separate core, solvers, mpc, lqr, qp, and utils modules
+- Added class-based trajectory optimizer interface with TrajectoryOptimizer protocol
+- Implemented multiple QP solver backends (OSQP, Clarabel, CVXPY, ProxQP)
+- Created unified MPC controller interface with warm starting and relinearization
+- Enhanced LQR module with Riccati equation solvers
+- Integrated SQP solver from experimental into main solvers module
+- Created legacy compatibility layer for backward compatibility
+
+This work retains the Apache License 2.0 from the original project.
+All original copyright notices have been preserved in source files.

@@ -57,6 +57,7 @@ from jax import jacobian
 from jax import jit
 from jax import lax
 from jax import random
+from jax import tree_util
 from jax import vmap
 import jax.flatten_util
 import jax.numpy as np
@@ -70,11 +71,11 @@ pad = lambda A: np.vstack((A, np.zeros((1,) + A.shape[1:])))
 
 
 def _pytree_zeros_like(tree):
-  return jax.tree_map(np.zeros_like, tree)
+  return tree_util.tree_map(np.zeros_like, tree)
 
 
 def _pytree_scale(tree, scale):
-  return jax.tree_map(lambda leaf: scale * leaf, tree)
+  return tree_util.tree_map(lambda leaf: scale * leaf, tree)
 
 
 def _pytree_negate(tree):
@@ -82,7 +83,7 @@ def _pytree_negate(tree):
 
 
 def _pytree_add(tree0, tree1):
-  return jax.tree_map(lambda x, y: x + y, tree0, tree1)
+  return tree_util.tree_map(lambda x, y: x + y, tree0, tree1)
 
 
 def vectorize(fun, argnums=3):
@@ -895,7 +896,7 @@ def vhp_params(cost):
     """
     T = X.shape[0] - 1
     params = args[0]
-    gradient = jax.tree_map(np.zeros_like, params)
+    gradient = tree_util.tree_map(np.zeros_like, params)
     Cx = hessian_x_params(X[T], U[T], T, *args)
     contract = lambda x, y: np.tensordot(x, y, (-1, 0))
 
@@ -906,10 +907,10 @@ def vhp_params(cost):
       Cx = hessian_x_params(X[t], U[t], t, *args)
       Cu = hessian_u_params(X[t], U[t], t, *args)
       w = np.matmul(B[t], vector[t])
-      g = jax.tree_map(
+      g = tree_util.tree_map(
           lambda P_, g_, Cu_: g_ + contract(vector[t], Cu_) + contract(w, P_),
           P, g, Cu)
-      P = jax.tree_map(lambda P_, Cx_: contract(A[t].T, P_) + Cx_, P, Cx)
+      P = tree_util.tree_map(lambda P_, Cx_: contract(A[t].T, P_) + Cx_, P, Cx)
       return P, g
 
     return lax.fori_loop(0, T, body, (Cx, gradient))
